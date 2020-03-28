@@ -1,6 +1,28 @@
 <?php
 function schutzteufel_single_recent_post_block() {
 
+ 
+    // automatically load dependencies and version
+    $asset_file = include( plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
+ 
+    wp_register_script(
+        'gutenberg-single-recent-post',
+        plugins_url( 'build/block.js', __FILE__ ),
+        $asset_file['dependencies'],
+        $asset_file['version']
+    );
+ 
+    register_block_type( 
+        'schutzteufels/example-01-basic-esnext', 
+        array('editor_script' => 'gutenberg-single-recent-post',)
+    );
+ 
+}
+
+add_action( 'init', 'gutenberg_examples_01_register_block' );
+
+
+    /*     
     // Scripts.
     wp_register_script(
         'schutzteufel-single-recent-post-block-script', // Handle.
@@ -35,4 +57,6 @@ function schutzteufel_single_recent_post_block() {
     ) );
     
     add_action( 'init', 'schutzteufel_single_recent_post_block' );
+ */
+
 ?>
