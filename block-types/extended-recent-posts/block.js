@@ -17,6 +17,7 @@
         PanelRow,
         FormToggle,
         TextControl,
+        RangeControl,
     } = components;
     var __ = i18n.__;
     var el = element.createElement;
@@ -122,7 +123,7 @@
                     // this is displayed on top of the block when editing it
                     el(BlockControls, { key: 'controls' },
                         el(AlignmentToolbar, {
-                            value: align,
+                            value: attributes.align,
                             onChange: changeAlign,
                         })
                     ),
@@ -130,13 +131,52 @@
                     // this will be displayed in the block tab on the right when editing
                     
                     el(InspectorControls, { key: 'inspector' },
-                        el(FormToggle, {
-                            label: __('Display Title'),
-                            checked: attributes.displayTitle,
-                            onChange: function (change) {
-                                props.setAttributes({ displayTitle: change })
-                            }
-                        }),
+                        el(PanelBody, {title: __('General')}, 
+                            el(RangeControl, {
+                                label: __('Number of Posts'),
+                                value: attributes.numberOfPosts,
+                                onChange: changeNumberOfPosts,
+                                min: 1,
+                                max: 100,
+                            }),
+                            el( TextControl , { // should be SelectControl
+                                label: __('Order By'),
+                                value: attributes.orderBy,
+                            }),
+                            el( TextControl , { // should be SelectControl
+                                label: __('Order'),
+                                value: attributes.order,
+                            })
+                        ),
+                        el(PanelBody, {title: __('Head')}, 
+                            el(FormToggle, {
+                                label: __('Display Link'),
+                                checked: attributes.displayLink,
+                                onChange: changeDisplayLink,
+                            }),
+                            el(FormToggle, {
+                                label: __('Display Post Date'),
+                                checked: attributes.changeDisplayPostDate,
+                                onChange: changeDisplayPostDate,
+                            }),
+                        ),
+                        el(PanelBody, {title: __('Title')}, 
+                            el(FormToggle, {
+                                label: __('Display Title'),
+                                checked: attributes.displayTitle,
+                                onChange: changeDisplayTitle,
+                            }),
+                            el(TextControl, {
+                                label: __('Title Tag'),
+                                value: attributes.titleTag,
+                                onChange: changeTitleTag,
+                            }),
+                            el(TextControl, {
+                                label: __('Title Class'),
+                                value: attributes.titleClass,
+                                onChange: changeTitleClass,
+                            }),
+                        ),
                     ),
                     
                     // the following will be displayed as the block while editing
