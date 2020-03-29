@@ -1,76 +1,262 @@
 <?php
-function schutzteufel_single_recent_post_register_block() {
-
- 
-    // automatically load dependencies and version
-    //$asset_file = include( plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
- 
-    wp_register_script(
-        'schutzteufel-single-recent-post',
-        plugins_url( 'block.js', __FILE__ ),
-        array( 'wp-blocks', 'wp-element' ),
-        filemtime( plugin_dir_path( __FILE__ ) . 'block.js' )
-    );
- 
-    wp_register_style(
-        'schutzteufel-single-recent-post-editor',
-        plugins_url( 'editor.css', __FILE__ ),
-        array( 'wp-edit-blocks' ),
-        filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' )
-    );
- 
-    wp_register_style(
-        'schutzteufel-single-recent-post',
-        plugins_url( 'style.css', __FILE__ ),
-        array( ),
-        filemtime( plugin_dir_path( __FILE__ ) . 'style.css' )
-    );
- 
-    register_block_type( 'schutzteufel-examples/example-02-stylesheets', array(
-        'style' => 'schutzteufel-single-recent-post',
-        'editor_style' => 'schutzteufel-single-recent-post-editor',
-        'editor_script' => 'schutzteufel-single-recent-post',
-    ) );
-}
-
-add_action( 'init', 'schutzteufel_single_recent_post_register_block' );
-
-
-    /*     
-    // Scripts.
-    wp_register_script(
-        'schutzteufel-single-recent-post-block-script', // Handle.
-        plugins_url( 'block.js', __FILE__ ), // Block.js: We register the block here.
-        array( 'wp-blocks', 'wp-components', 'wp-element', 'wp-i18n', 'wp-editor' ), // Dependencies, defined above.
-        filemtime( plugin_dir_path( __FILE__ ) . 'block.js' ),
-        true // Load script in footer.
-    );
-
-    // Styles.
-    wp_register_style(
-        'schutzteufel-single-recent-post-block-editor-style', // Handle.
-        plugins_url( 'editor.css', __FILE__ ), // Block editor CSS.
-        array( 'wp-edit-blocks' ), // Dependency to include the CSS after it.
-        filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' )
-    );
-    wp_register_style(
-        'schutzteufel-single-recent-post-block-frontend-style', // Handle.
-        plugins_url( 'style.css', __FILE__ ), // Block editor CSS.
-        array(), // Dependency to include the CSS after it.
-        filemtime( plugin_dir_path( __FILE__ ) . 'style.css' )
-    );
-
-    } // End function organic_profile_block().
-
-	// Register the block with WP using our namespacing
-	// We also specify the scripts and styles to be used in the Gutenberg interface
-	register_block_type( 'single-recent-post/block', array(
-		'editor_script' => 'schutzteufel-single-recent-post-block-script',
-		'editor_style' => 'schutzteufel-single-recent-post-block-editor-style',
-		'style' => 'schutzteufel-single-recent-post-block-frontend-style',
-    ) );
-    
-    add_action( 'init', 'schutzteufel_single_recent_post_block' );
+/**
+ * Server-side rendering of the `latest-posts` block.
+ *
+ * @package Schutzteufel
  */
 
-?>
+
+/**
+ * The excerpt length set by the Latest Posts core block
+ * set at render time and used by the block itself.
+ *
+ * @var int
+ */
+$block_schutzteufel_latest_posts_excerpt_length = 0;
+
+/**
+ * Callback for the excerpt_length filter used by
+ * the Latest Posts block at render time.
+ *
+ * @return int Returns the global $block_schutzteufel_latest_posts_excerpt_length variable
+ *             to allow the excerpt_length filter respect the Latest Block setting.
+ */
+function block_schutzteufel_latest_posts_get_excerpt_length() {
+	global $block_schutzteufel_latest_posts_excerpt_length;
+	return $block_schutzteufel_latest_posts_excerpt_length;
+}
+
+/**
+ * Renders the `schutzteufel/latest-posts` block on server.
+ *
+ * @param array $attributes The block attributes.
+ *
+ * @return string Returns the post content with latest post added.
+ */
+function render_block_schutzteufel_latest_posts( $attributes ) {
+	global $block_schutzteufel_latest_posts_excerpt_length;
+
+	$args = array(
+		'posts_per_page'   => $attributes['postsToShow'],
+		'post_status'      => 'publish',
+		'order'            => $attributes['order'],
+		'orderby'          => $attributes['orderBy'],
+		'suppress_filters' => false,
+	);
+
+	$block_schutzteufel_latest_posts_excerpt_length = $attributes['excerptLength'];
+	add_filter( 'excerpt_length', 'block_schutzteufel_latest_posts_get_excerpt_length', 20 );
+
+	if ( isset( $attributes['categories'] ) ) {
+		$args['category'] = $attributes['categories'];
+	}
+
+	$recent_posts = get_posts( $args );
+
+	$list_items_markup = '';
+
+	foreach ( $recent_posts as $post ) {
+		$list_items_markup .= '<li>';
+
+		if ( $attributes['displayFeaturedImage'] && has_post_thumbnail( $post ) ) {
+			$image_style = '';
+			if ( isset( $attributes['featuredImageSizeWidth'] ) ) {
+				$image_style .= sprintf( 'max-width:%spx;', $attributes['featuredImageSizeWidth'] );
+			}
+			if ( isset( $attributes['featuredImageSizeHeight'] ) ) {
+				$image_style .= sprintf( 'max-height:%spx;', $attributes['featuredImageSizeHeight'] );
+			}
+
+			$image_classes = 'wp-block-latest-posts__featured-image';
+			if ( isset( $attributes['featuredImageAlign'] ) ) {
+				$image_classes .= ' align' . $attributes['featuredImageAlign'];
+			}
+
+			$list_items_markup .= sprintf(
+				'<div class="%1$s">%2$s</div>',
+				$image_classes,
+				get_the_post_thumbnail(
+					$post,
+					$attributes['featuredImageSizeSlug'],
+					array(
+						'style' => $image_style,
+					)
+				)
+			);
+		}
+
+		$title = get_the_title( $post );
+		if ( ! $title ) {
+			$title = __( '(no title)' );
+		}
+		$list_items_markup .= sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( get_permalink( $post ) ),
+			$title
+		);
+
+		if ( isset( $attributes['displayPostDate'] ) && $attributes['displayPostDate'] ) {
+			$list_items_markup .= sprintf(
+				'<time datetime="%1$s" class="wp-block-latest-posts__post-date">%2$s</time>',
+				esc_attr( get_the_date( 'c', $post ) ),
+				esc_html( get_the_date( '', $post ) )
+			);
+		}
+
+		if ( isset( $attributes['displayPostContent'] ) && $attributes['displayPostContent']
+			&& isset( $attributes['displayPostContentRadio'] ) && 'excerpt' === $attributes['displayPostContentRadio'] ) {
+
+			$trimmed_excerpt = get_the_excerpt( $post );
+
+			$list_items_markup .= sprintf(
+				'<div class="wp-block-latest-posts__post-excerpt">%1$s',
+				$trimmed_excerpt
+			);
+
+			if ( strpos( $trimmed_excerpt, ' &hellip; ' ) !== false ) {
+				$list_items_markup .= sprintf(
+					'<a href="%1$s">%2$s</a></div>',
+					esc_url( get_permalink( $post ) ),
+					__( 'Read more' )
+				);
+			} else {
+				$list_items_markup .= sprintf(
+					'</div>'
+				);
+			}
+		}
+
+		if ( isset( $attributes['displayPostContent'] ) && $attributes['displayPostContent']
+			&& isset( $attributes['displayPostContentRadio'] ) && 'full_post' === $attributes['displayPostContentRadio'] ) {
+			$list_items_markup .= sprintf(
+				'<div class="wp-block-latest-posts__post-full-content">%1$s</div>',
+				wp_kses_post( html_entity_decode( $post->post_content, ENT_QUOTES, get_option( 'blog_charset' ) ) )
+			);
+		}
+
+		$list_items_markup .= "</li>\n";
+	}
+
+	remove_filter( 'excerpt_length', 'block_schutzteufel_latest_posts_get_excerpt_length', 20 );
+
+	$class = 'wp-block-latest-posts wp-block-latest-posts__list';
+	if ( isset( $attributes['align'] ) ) {
+		$class .= ' align' . $attributes['align'];
+	}
+
+	if ( isset( $attributes['postLayout'] ) && 'grid' === $attributes['postLayout'] ) {
+		$class .= ' is-grid';
+	}
+
+	if ( isset( $attributes['columns'] ) && 'grid' === $attributes['postLayout'] ) {
+		$class .= ' columns-' . $attributes['columns'];
+	}
+
+	if ( isset( $attributes['displayPostDate'] ) && $attributes['displayPostDate'] ) {
+		$class .= ' has-dates';
+	}
+
+	if ( isset( $attributes['className'] ) ) {
+		$class .= ' ' . $attributes['className'];
+	}
+
+	return sprintf(
+		'<ul class="%1$s">%2$s</ul>',
+		esc_attr( $class ),
+		$list_items_markup
+	);
+}
+
+/**
+ * Registers the `schutzteufel/latest-posts` block on server.
+ */
+function register_block_schutzteufel_latest_posts() {
+	register_block_type(
+		'schutzteufel/latest-posts',
+		array(
+			'attributes'      => array(
+				'align'                   => array(
+					'type' => 'string',
+					'enum' => array( 'left', 'center', 'right', 'wide', 'full' ),
+				),
+				'className'               => array(
+					'type' => 'string',
+				),
+				'categories'              => array(
+					'type' => 'string',
+				),
+				'postsToShow'             => array(
+					'type'    => 'number',
+					'default' => 5,
+				),
+				'displayPostContent'      => array(
+					'type'    => 'boolean',
+					'default' => false,
+				),
+				'displayPostContentRadio' => array(
+					'type'    => 'string',
+					'default' => 'excerpt',
+				),
+				'excerptLength'           => array(
+					'type'    => 'number',
+					'default' => 55,
+				),
+				'displayPostDate'         => array(
+					'type'    => 'boolean',
+					'default' => false,
+				),
+				'postLayout'              => array(
+					'type'    => 'string',
+					'default' => 'list',
+				),
+				'columns'                 => array(
+					'type'    => 'number',
+					'default' => 3,
+				),
+				'order'                   => array(
+					'type'    => 'string',
+					'default' => 'desc',
+				),
+				'orderBy'                 => array(
+					'type'    => 'string',
+					'default' => 'date',
+				),
+				'displayFeaturedImage'    => array(
+					'type'    => 'boolean',
+					'default' => false,
+				),
+				'featuredImageAlign'      => array(
+					'type' => 'string',
+					'enum' => array( 'left', 'center', 'right' ),
+				),
+				'featuredImageSizeSlug'   => array(
+					'type'    => 'string',
+					'default' => 'thumbnail',
+				),
+				'featuredImageSizeWidth'  => array(
+					'type'    => 'number',
+					'default' => null,
+				),
+				'featuredImageSizeHeight' => array(
+					'type'    => 'number',
+					'default' => null,
+                ),
+                'smallTitleLink' => array(
+					'type'    => 'boolean',
+                    'default' => true,
+                ),
+                'titleAsLink' => array(
+                    'type' => 'boolean',
+                    'default' => false,
+                ),
+                'titleTag' => array(
+                    'type' => 'string',
+                    'enum' => array( 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ),
+                    'default' => 'h1',
+                ),
+			),
+			'render_callback' => 'render_block_schutzteufel_latest_posts',
+		)
+	);
+}
+add_action( 'init', 'register_block_schutzteufel_latest_posts' );
