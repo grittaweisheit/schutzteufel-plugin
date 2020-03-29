@@ -81,6 +81,8 @@
       }
 
       return [
+
+        // this is displayed on top of the block when editing it
         el(BlockControls, { key: 'controls' }, // Display controls when the block is clicked on.
           el('div', { className: 'components-toolbar' },
             el(MediaUpload, {
@@ -104,6 +106,8 @@
             onChange: onChangeAlignment
           })
         ),
+
+        // this will displayed in the block tab on the right when editing
         el(InspectorControls, { key: 'inspector' }, // Display the block options in the inspector panel.
           el(PanelBody, {
             title: __('Social Media Links'),

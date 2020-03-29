@@ -12,9 +12,29 @@ defined( 'ABSPATH' ) || exit;
  * `wp-blocks`: Includes block type registration and related functions.
  * `wp-element`: Includes the WordPress Element abstraction for describing the structure of your blocks.
  * `wp-i18n`: To internationalize the block's text.
+ * `wp-data`: To access posts and other data.
  *
  * @since 1.0.0
  */
+
+function schutzteufel_extended_recent_posts_block_render_callback($attributes, $content){
+	$recent_posts = wp_get_recent_posts(array(
+		'numberposts' => $attributes.numberOfPosts,
+		'post_status' => 'publish',
+	));
+	
+	if ( count( $recent_posts ) === 0 ) {
+        return 'No posts';
+    }
+    $post = $recent_posts[ 0 ];
+    $post_id = $post['ID'];
+    return sprintf(
+        '<a class="wp-block-my-plugin-latest-post" href="%1$s">%2$s</a>',
+        esc_url( get_permalink( $post_id ) ),
+        esc_html( get_the_title( $post_id ) )
+    );
+}
+
 function schutzteufel_extended_recent_posts_block() {
 
 	if ( ! function_exists( 'register_block_type' ) ) {
@@ -26,7 +46,7 @@ function schutzteufel_extended_recent_posts_block() {
 	wp_enqueue_script(
 		'schutzteufel-extended-recent-posts-block-script', // Handle.
 		plugins_url( 'block.js', __FILE__ ), // Block.js: We register the block here.
-		array( 'wp-blocks', 'wp-components', 'wp-element', 'wp-i18n', 'wp-editor' ), // Dependencies, defined above.
+		array( 'wp-blocks', 'wp-components', 'wp-element', 'wp-i18n', 'wp-editor', 'wp-data' ), // Dependencies, defined above.
 		filemtime( plugin_dir_path( __FILE__ ) . 'block.js' ),
 		true // Load script in footer.
 	);
@@ -58,6 +78,7 @@ function schutzteufel_extended_recent_posts_block() {
 		array(
 			'editor_script' => 'schutzteufel-extended-recent-posts-block-script',
 			'editor_style'  => 'schutzteufel-extended-recent-posts-block-editor-style',
+			'render_callback' => 'schutzteufel_extended_recent_posts_block_render_callback',
 			'style'         => 'schutzteufel-extended-recent-posts-block-frontend-style',
 		)
 	);
