@@ -10,7 +10,8 @@ defined( 'ABSPATH' ) || exit;
  * Enqueue the block's assets for the editor.
  *
  * `wp-blocks`: Includes block type registration and related functions.
- * `wp-element`: Includes the WordPress Element abstraction for describing the structure of your blocks.
+ * `wp-block-element`: Includes the WordPress Element abstraction for describing the structure of your blocks.
+ * `wp-components`: for components.
  * `wp-i18n`: To internationalize the block's text.
  * `wp-data`: To access posts and other data.
  * `wp-editor`: For the editor.
@@ -282,7 +283,7 @@ function schutzteufel_extended_recent_posts_block() {
 	wp_enqueue_script(
 		'schutzteufel-extended-recent-posts-block', // Handle.
 		plugins_url( 'block.js', __FILE__ ), // Block.js: We register the block here.
-		array( 'wp-blocks', 'wp-editor', 'wp-components', 'wp-i18n', 'wp-element', 'wp-data' ), // Dependencies, defined above.
+		array( 'wp-blocks', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-element', 'wp-data' ), // Dependencies, defined above.
 		filemtime( plugin_dir_path( __FILE__ ) . 'block.js' ),
 		true // Load script in footer.
 	);

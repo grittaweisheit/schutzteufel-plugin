@@ -1,13 +1,28 @@
 ( function( blocks, editor, components, i18n, element, data ) {
+	const {
+        registerBlockType,
+    } = blocks
+    const {
+        RichText,
+        AlignmentToolbar,
+        BlockControls,
+        BlockAlignmentToolbar,
+        InspectorControls,
+    } = editor;
+    const {
+        Toolbar,
+        Button,
+        Tooltip,
+        PanelBody,
+        PanelRow,
+        FormToggle,
+        TextControl,
+    } = components;
     var __ = i18n.__;
-	var el = element.createElement,
-        registerBlockType = blocks.registerBlockType,
-        withSelect = data.withSelect,
-    	RichText = editor.RichText,
-     	BlockControls = editor.BlockControls,
-     	AlignmentToolbar = editor.AlignmentToolbar,
-     	InspectorControls = editor.InspectorControls,
-     	TextControl = components.TextControl;
+    var el = element.createElement;
+    const {
+        withSelect,
+    } = data;
  
     registerBlockType( 'schutzteufel/extended-recent-posts-block', {
         title: 'Recent Posts',
@@ -19,7 +34,7 @@
         },
 		
 		edit:
-            withSelect( function( select ) {
+            withSelect( function( select, props ) {
                 return {
                     posts: select( 'core' ).getEntityRecords( 'postType', 'post' ),
                 };
@@ -43,28 +58,29 @@
                 }
 
                 return [
-                        // this is displayed on top of the block when editing it
-                        el(BlockControls, { key: 'controls' },
+                    // this is displayed on top of the block when editing it
+                    el(BlockControls, { key: 'controls' },
                         el(AlignmentToolbar, {
                             value: alignment,
                             onChange: onChangeAlignment
                         })
                     ),
 
-                    // this will displayed in the block tab on the right when editing
+                    // this will be displayed in the block tab on the right when editing
+                    
                     el(InspectorControls, { key: 'inspector' },
-                        el(TextControl, {
-                            label: __('Content1'),
-                            value: attributes.content1,
-                            onChange: function (newContent1) {
-                                props.setAttributes({ content1: newContent1 })
+                        el(FormToggle, {
+                            label: __('Display Title'),
+                            checked: attributes.displayTitle,
+                            onChange: function (change) {
+                                props.setAttributes({ displayTitle: change })
                             }
                         }),
                     ),
-
-                    // this will be displayed as the block while editing
+                    
+                    // the following will be displayed as the block while editing
                     el('div', { },
-                        el(RichText, {
+                       el(RichText, {
                             tagName: 'h1',
                             placeholder: __('Write Content2 for RichText'),
                             keepPlaceholderOnFocus: true,
@@ -72,8 +88,8 @@
                             onChange: function(newContent2){
                                 props.setAttributes({content2: newContent2})
                             }
-                        }),
-                        el('a', {href: posts[0].link}, posts[0].title.rendered)
+                        }), 
+                        //el('p', {}, posts[0].title),
                     )
                 ]
             },),
@@ -84,7 +100,7 @@
     } );
 }(
     window.wp.blocks,
-    window.wp.editor,
+    window.wp.blockEditor,
     window.wp.components,
     window.wp.i18n,
     window.wp.element,
