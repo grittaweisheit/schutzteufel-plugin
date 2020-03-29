@@ -5,16 +5,14 @@
     var RichText = editor.RichText
     var BlockControls = editor.BlockControls
     var AlignmentToolbar = editor.AlignmentToolbar
-    var MediaUpload = editor.MediaUpload
     var InspectorControls = editor.InspectorControls
-    var PanelBody = components.PanelBody
     var TextControl = components.TextControl
 
     registerBlockType('schutzteufel/extended-recent-posts-block', { // The name of our block. Must be a string with prefix. Example: my-plugin/my-custom-block.
         title: __('Recent Posts'), // The title of our block.
         description: __('A custom block for displaying recent posts.'), // The description of our block.
-        icon: 'megaphone', // Dashicon icon for our block. Custom icons can be added using inline SVGs.
-        category: 'widget', // The category of the block.
+        icon: 'businessman', // Dashicon icon for our block. Custom icons can be added using inline SVGs.
+        category: 'common', // The category of the block.
         supports: {
             align: true,
             alignWide: true
@@ -61,7 +59,7 @@
                     }),
                 ),
 
-                el('div', { className: props.className },
+                el('div', { },
                     el(RichText, {
                         tagName: 'h1',
                         placeholder: __('Write Content2 for RichText'),
@@ -92,7 +90,13 @@
             )
         }
     })
-})
+})(
+    window.wp.blocks,
+    window.wp.editor,
+    window.wp.components,
+    window.wp.i18n,
+    window.wp.element
+)
 
 /* import { registerBlockType } from '@wordpress/blocks';
 import { 
