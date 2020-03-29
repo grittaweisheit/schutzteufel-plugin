@@ -1,6 +1,6 @@
 <?php
 /**
- * Server-side rendering of the `latest-posts` block.
+ * Server-side rendering of the `extended-latest-posts` block.
  *
  * @package Schutzteufel
  */
@@ -12,29 +12,29 @@
  *
  * @var int
  */
-$block_schutzteufel_latest_posts_excerpt_length = 0;
+$block_schutzteufel_extended_latest_posts_excerpt_length = 0;
 
 /**
  * Callback for the excerpt_length filter used by
  * the Latest Posts block at render time.
  *
- * @return int Returns the global $block_schutzteufel_latest_posts_excerpt_length variable
+ * @return int Returns the global $block_schutzteufel_extended_latest_posts_excerpt_length variable
  *             to allow the excerpt_length filter respect the Latest Block setting.
  */
-function block_schutzteufel_latest_posts_get_excerpt_length() {
-	global $block_schutzteufel_latest_posts_excerpt_length;
-	return $block_schutzteufel_latest_posts_excerpt_length;
+function block_schutzteufel_extended_latest_posts_get_excerpt_length() {
+	global $block_schutzteufel_extended_latest_posts_excerpt_length;
+	return $block_schutzteufel_extended_latest_posts_excerpt_length;
 }
 
 /**
- * Renders the `schutzteufel/latest-posts` block on server.
+ * Renders the `schutzteufel/extended-latest-posts` block on server.
  *
  * @param array $attributes The block attributes.
  *
  * @return string Returns the post content with latest post added.
  */
-function render_block_schutzteufel_latest_posts( $attributes ) {
-	global $block_schutzteufel_latest_posts_excerpt_length;
+function render_block_schutzteufel_extended_latest_posts( $attributes ) {
+	global $block_schutzteufel_extended_latest_posts_excerpt_length;
 
 	$args = array(
 		'posts_per_page'   => $attributes['postsToShow'],
@@ -44,8 +44,8 @@ function render_block_schutzteufel_latest_posts( $attributes ) {
 		'suppress_filters' => false,
 	);
 
-	$block_schutzteufel_latest_posts_excerpt_length = $attributes['excerptLength'];
-	add_filter( 'excerpt_length', 'block_schutzteufel_latest_posts_get_excerpt_length', 20 );
+	$block_schutzteufel_extended_latest_posts_excerpt_length = $attributes['excerptLength'];
+	add_filter( 'excerpt_length', 'block_schutzteufel_extended_latest_posts_get_excerpt_length', 20 );
 
 	if ( isset( $attributes['categories'] ) ) {
 		$args['category'] = $attributes['categories'];
@@ -67,7 +67,7 @@ function render_block_schutzteufel_latest_posts( $attributes ) {
 				$image_style .= sprintf( 'max-height:%spx;', $attributes['featuredImageSizeHeight'] );
 			}
 
-			$image_classes = 'wp-block-latest-posts__featured-image';
+			$image_classes = 'wp-block-extended-latest-posts__featured-image';
 			if ( isset( $attributes['featuredImageAlign'] ) ) {
 				$image_classes .= ' align' . $attributes['featuredImageAlign'];
 			}
@@ -97,7 +97,7 @@ function render_block_schutzteufel_latest_posts( $attributes ) {
 
 		if ( isset( $attributes['displayPostDate'] ) && $attributes['displayPostDate'] ) {
 			$list_items_markup .= sprintf(
-				'<time datetime="%1$s" class="wp-block-latest-posts__post-date">%2$s</time>',
+				'<time datetime="%1$s" class="wp-block-extended-latest-posts__post-date">%2$s</time>',
 				esc_attr( get_the_date( 'c', $post ) ),
 				esc_html( get_the_date( '', $post ) )
 			);
@@ -109,7 +109,7 @@ function render_block_schutzteufel_latest_posts( $attributes ) {
 			$trimmed_excerpt = get_the_excerpt( $post );
 
 			$list_items_markup .= sprintf(
-				'<div class="wp-block-latest-posts__post-excerpt">%1$s',
+				'<div class="wp-block-extended-latest-posts__post-excerpt">%1$s',
 				$trimmed_excerpt
 			);
 
@@ -129,7 +129,7 @@ function render_block_schutzteufel_latest_posts( $attributes ) {
 		if ( isset( $attributes['displayPostContent'] ) && $attributes['displayPostContent']
 			&& isset( $attributes['displayPostContentRadio'] ) && 'full_post' === $attributes['displayPostContentRadio'] ) {
 			$list_items_markup .= sprintf(
-				'<div class="wp-block-latest-posts__post-full-content">%1$s</div>',
+				'<div class="wp-block-extended-latest-posts__post-full-content">%1$s</div>',
 				wp_kses_post( html_entity_decode( $post->post_content, ENT_QUOTES, get_option( 'blog_charset' ) ) )
 			);
 		}
@@ -137,9 +137,9 @@ function render_block_schutzteufel_latest_posts( $attributes ) {
 		$list_items_markup .= "</li>\n";
 	}
 
-	remove_filter( 'excerpt_length', 'block_schutzteufel_latest_posts_get_excerpt_length', 20 );
+	remove_filter( 'excerpt_length', 'block_schutzteufel_extended_latest_posts_get_excerpt_length', 20 );
 
-	$class = 'wp-block-latest-posts wp-block-latest-posts__list';
+	$class = 'wp-block-extended-latest-posts wp-block-extended-latest-posts__list';
 	if ( isset( $attributes['align'] ) ) {
 		$class .= ' align' . $attributes['align'];
 	}
@@ -168,11 +168,11 @@ function render_block_schutzteufel_latest_posts( $attributes ) {
 }
 
 /**
- * Registers the `schutzteufel/latest-posts` block on server.
+ * Registers the `schutzteufel/extended-latest-posts` block on server.
  */
-function register_block_schutzteufel_latest_posts() {
+function register_block_schutzteufel_extended_latest_posts() {
 	register_block_type(
-		'schutzteufel/latest-posts',
+		'schutzteufel/extended-latest-posts',
 		array(
 			'attributes'      => array(
 				'align'                   => array(
@@ -255,8 +255,8 @@ function register_block_schutzteufel_latest_posts() {
                     'default' => 'h1',
                 ),
 			),
-			'render_callback' => 'render_block_schutzteufel_latest_posts',
+			'render_callback' => 'render_block_schutzteufel_extended_latest_posts',
 		)
 	);
 }
-add_action( 'init', 'register_block_schutzteufel_latest_posts' );
+add_action( 'init', 'register_block_schutzteufel_extended_latest_posts' );

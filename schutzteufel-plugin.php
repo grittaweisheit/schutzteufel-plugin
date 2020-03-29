@@ -24,5 +24,6 @@ if ( ! defined( 'ST_URL' ) ) {
  * BLOCK: Profile Block.
  */
 require_once ST_DIR . '/block-types/profile/index.php';
+require_once ST_DIR . '/block-types/extended-recent-posts/index.php';
 
 ?>
