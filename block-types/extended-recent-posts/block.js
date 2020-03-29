@@ -53,16 +53,77 @@
                 var alignment = props.attributes.align
                 var posts = props.posts
 
-                function onChangeAlignment (newAlignment) {
-                    props.setAttributes({ alignment: newAlignment })
+                function changeAlign (changedAlign) {
+                    props.setAttributes({ align: changedAlign })
                 }
+                function changeCatecories (changedCategories) {
+                    props.setAttributes({ categories: changedCategories })
+                }
+                function changeClassName (changedClassName) {
+                    props.setAttributes({ className: changedClassName })
+                }
+                function changeColumns (changedColumns) {
+                    props.setAttributes({ columns: changedColumns })
+                }
+                function changeDisplayFeaturedImage (changedDisplayFeaturedImage) {
+                    props.setAttributes({ displayFeaturedImage: changedDisplayFeaturedImage })
+                }
+                function changeDisplayLink (changedDisplayLink) {
+                    props.setAttributes({ displayLink: changedDisplayLink })
+                }
+                function changeDisplayTitle (changedDisplayTitle) {
+                    props.setAttributes({ displayTitle: changedDisplayTitle })
+                }
+                function changeDisplayPostContent (changedDisplayPostContent) {
+                    props.setAttributes({ displayPostContent: changedDisplayPostContent })
+                }
+                function changeDisplayPostContentRadio (changedDisplayPostContentRadio) {
+                    props.setAttributes({ displayPostContentRadio: changedDisplayPostContentRadio })
+                }
+                function changeDisplayPostDate (changedDisplayPostDate) {
+                    props.setAttributes({ displayPostSate: changedDisplayPostDate })
+                }
+                function changeExcerptLength (changedExcerptLength) {
+                    props.setAttributes({ excerptLength: changedExcerptLength })
+                }
+                function changeFeaturedImageAlign (changedFeaturedImageAlign) {
+                    props.setAttributes({ featuredImageAlign: changedFeaturedImageAlign })
+                }
+                function changeFeaturedImageSizeHeight (changedFeaturedImageSizeHeight) {
+                    props.setAttributes({ featuredImageSizeHeight: changedFeaturedImageSizeHeight })
+                }
+                function changeFeaturedImageSizeSlug (changedFeaturedImageSizeSlug) {
+                    props.setAttributes({ featuredImageSizeSlug: changedFeaturedImageSizeSlug })
+                }
+                function changeFeaturedImageSizeWidth (changedFeaturedImageSizeWidth) {
+                    props.setAttributes({ featuredImageSizeWidth: changedFeaturedImageSizeWidth })
+                }
+                function changeNumberOfPosts (changedNumberOfPosts) {
+                    props.setAttributes({ numberOfPosts: changedNumberOfPosts })
+                }
+                function changeOrder (changedOrder) {
+                    props.setAttributes({ order: changedOrder })
+                }
+                function changeOrderBy (changedOrderBy) {
+                    props.setAttributes({ orderBy: changedOrderBy })
+                }
+                function changePostLayout (changedPostLayout) {
+                    props.setAttributes({ postLayout: changedPostLayout })
+                }
+                function changeTitleClass (changedTitleClass) {
+                    props.setAttributes({ titleClass: changedTitleClass })
+                }
+                function changeTitleTag (changedTitleTag) {
+                    props.setAttributes({ titleTag: changedTitleTag })
+                }
+
 
                 return [
                     // this is displayed on top of the block when editing it
                     el(BlockControls, { key: 'controls' },
                         el(AlignmentToolbar, {
-                            value: alignment,
-                            onChange: onChangeAlignment
+                            value: align,
+                            onChange: changeAlign,
                         })
                     ),
 
