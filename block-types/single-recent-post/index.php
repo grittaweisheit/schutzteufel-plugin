@@ -1,25 +1,39 @@
 <?php
-function schutzteufel_single_recent_post_block() {
+function schutzteufel_single_recent_post_register_block() {
 
  
     // automatically load dependencies and version
-    $asset_file = include( plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
+    //$asset_file = include( plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
  
     wp_register_script(
-        'gutenberg-single-recent-post',
-        plugins_url( 'build/block.js', __FILE__ ),
-        $asset_file['dependencies'],
-        $asset_file['version']
+        'schutzteufel-single-recent-post',
+        plugins_url( 'block.js', __FILE__ ),
+        array( 'wp-blocks', 'wp-element' ),
+        filemtime( plugin_dir_path( __FILE__ ) . 'block.js' )
     );
  
-    register_block_type( 
-        'schutzteufels/example-01-basic-esnext', 
-        array('editor_script' => 'gutenberg-single-recent-post',)
+    wp_register_style(
+        'schutzteufel-single-recent-post-editor',
+        plugins_url( 'editor.css', __FILE__ ),
+        array( 'wp-edit-blocks' ),
+        filemtime( plugin_dir_path( __FILE__ ) . 'editor.css' )
     );
  
+    wp_register_style(
+        'schutzteufel-single-recent-post',
+        plugins_url( 'style.css', __FILE__ ),
+        array( ),
+        filemtime( plugin_dir_path( __FILE__ ) . 'style.css' )
+    );
+ 
+    register_block_type( 'schutzteufel-examples/example-02-stylesheets', array(
+        'style' => 'schutzteufel-single-recent-post',
+        'editor_style' => 'schutzteufel-single-recent-post-editor',
+        'editor_script' => 'schutzteufel-single-recent-post',
+    ) );
 }
 
-add_action( 'init', 'gutenberg_examples_01_register_block' );
+add_action( 'init', 'schutzteufel_single_recent_post_register_block' );
 
 
     /*     
