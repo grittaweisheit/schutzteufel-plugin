@@ -17,11 +17,14 @@
         PanelRow,
         FormToggle,
         TextControl,
+        ToggleControl,
         RangeControl,
+        QueryControls,
     } = components;
     var __ = i18n.__;
     var el = element.createElement;
     const {
+		select, // don't ever f***ing forgett this again
         withSelect,
     } = data;
  
@@ -35,24 +38,26 @@
         },
 		
 		edit:
-            withSelect( function( select, props ) {
+            withSelect( function( select ) {
                 return {
-                    posts: select( 'core' ).getEntityRecords( 'postType', 'post' ),
+                    all_posts: select( 'core' ).getEntityRecords( 'postType', 'post' ),
+                    all_categories: select('core').getEntityRecords( 'taxonomy', 'category'),
                 };
             })
             (function(props) {
-
+				console.log(props)
                 // search for posts
-                if ( ! props.posts ) {
+                if ( ! props.all_posts ) {
                     return 'Loading...';
                 }
-                if ( props.posts.length === 0 ) {
+                if ( props.all_posts.length === 0 ) {
                     return 'No posts';
                 }
 
                 var attributes = props.attributes
                 var alignment = props.attributes.align
-                var posts = props.posts
+                var posts = props.all_posts
+                var all_categories = props.all_categories
 
                 function changeAlign (changedAlign) {
                     props.setAttributes({ align: changedAlign })
@@ -139,6 +144,7 @@
                                 min: 1,
                                 max: 100,
                             }),
+                            el(QueryControls, ),
                             el( TextControl , { // should be SelectControl
                                 label: __('Order By'),
                                 value: attributes.orderBy,
@@ -149,34 +155,35 @@
                             })
                         ),
                         el(PanelBody, {title: __('Head')}, 
-                            el(FormToggle, {
+                            el(ToggleControl, {
                                 label: __('Display Link'),
                                 checked: attributes.displayLink,
                                 onChange: changeDisplayLink,
                             }),
-                            el(FormToggle, {
+                            el(ToggleControl, {
                                 label: __('Display Post Date'),
                                 checked: attributes.changeDisplayPostDate,
                                 onChange: changeDisplayPostDate,
                             }),
                         ),
                         el(PanelBody, {title: __('Title')}, 
-                            el(FormToggle, {
+                            el(ToggleControl, {
                                 label: __('Display Title'),
                                 checked: attributes.displayTitle,
                                 onChange: changeDisplayTitle,
                             }),
-                            el(TextControl, {
+                            attributes.displayTitle && el(TextControl, {
                                 label: __('Title Tag'),
                                 value: attributes.titleTag,
                                 onChange: changeTitleTag,
                             }),
-                            el(TextControl, {
+                            attributes.displayTitle && el(TextControl, {
                                 label: __('Title Class'),
                                 value: attributes.titleClass,
                                 onChange: changeTitleClass,
                             }),
                         ),
+
                     ),
                     
                     // the following will be displayed as the block while editing
@@ -190,7 +197,8 @@
                                 props.setAttributes({content2: newContent2})
                             }
                         }), 
-                        //el('p', {}, posts[0].title),
+
+					   //el('p', {}, posts[0].title),
                     )
                 ]
             },),

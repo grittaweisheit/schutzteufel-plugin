@@ -108,10 +108,12 @@ const block_attributes = array(
 	),
 	'order' => array(
 		'type'    => 'string',
+		'enum' => array('desc', 'asc'),
 		'default' => 'desc',
 	),
 	'orderBy'                 => array(
 		'type'    => 'string',
+		'enum' => ''
 		'default' => 'date',
 	),
 	'postLayout'              => array(
