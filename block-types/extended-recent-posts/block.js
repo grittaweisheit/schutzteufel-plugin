@@ -11,11 +11,13 @@
     } = editor;
     const {
         Toolbar,
+		BaseControl,
         Button,
         Tooltip,
         PanelBody,
         PanelRow,
         FormToggle,
+        SelectControl,
         TextControl,
         ToggleControl,
         RangeControl,
@@ -41,11 +43,10 @@
             withSelect( function( select ) {
                 return {
                     all_posts: select( 'core' ).getEntityRecords( 'postType', 'post' ),
-                    all_categories: select('core').getEntityRecords( 'taxonomy', 'category'),
+                    all_categories: select('core').getEntityRecords( 'taxonomy', 'category', {'taxonomy': 'category'}),
                 };
             })
             (function(props) {
-				console.log(props)
                 // search for posts
                 if ( ! props.all_posts ) {
                     return 'Loading...';
@@ -56,10 +57,14 @@
 
                 var attributes = props.attributes
                 var alignment = props.attributes.align
-                var posts = props.all_posts
+                var all_posts = props.all_posts
                 var all_categories = props.all_categories
-
-                function changeAlign (changedAlign) {
+				var all_category_names
+				if (all_categories){
+					all_category_names = all_categories.map(cat => cat.name)
+					// console.log(all_category_names)
+				}
+				function changeAlign (changedAlign) {
                     props.setAttributes({ align: changedAlign })
                 }
                 function changeCatecories (changedCategories) {
@@ -74,11 +79,11 @@
                 function changeDisplayFeaturedImage (changedDisplayFeaturedImage) {
                     props.setAttributes({ displayFeaturedImage: changedDisplayFeaturedImage })
                 }
+                function changeDisplayAuthor (changedDisplayAuthor) {
+                    props.setAttributes({ displayAuthor: changedDisplayAuthor })
+                }
                 function changeDisplayLink (changedDisplayLink) {
                     props.setAttributes({ displayLink: changedDisplayLink })
-                }
-                function changeDisplayTitle (changedDisplayTitle) {
-                    props.setAttributes({ displayTitle: changedDisplayTitle })
                 }
                 function changeDisplayPostContent (changedDisplayPostContent) {
                     props.setAttributes({ displayPostContent: changedDisplayPostContent })
@@ -87,7 +92,10 @@
                     props.setAttributes({ displayPostContentRadio: changedDisplayPostContentRadio })
                 }
                 function changeDisplayPostDate (changedDisplayPostDate) {
-                    props.setAttributes({ displayPostSate: changedDisplayPostDate })
+                    props.setAttributes({ displayPostDate: changedDisplayPostDate })
+                }
+                function changeDisplayTitle (changedDisplayTitle) {
+                    props.setAttributes({ displayTitle: changedDisplayTitle })
                 }
                 function changeExcerptLength (changedExcerptLength) {
                     props.setAttributes({ excerptLength: changedExcerptLength })
@@ -144,14 +152,31 @@
                                 min: 1,
                                 max: 100,
                             }),
-                            el(QueryControls, ),
-                            el( TextControl , { // should be SelectControl
+                            el( SelectControl , { // should be SelectControl
                                 label: __('Order By'),
+                                options: [
+                                    {value: 'author', label: 'author'},
+                                    {value: 'date', label: 'date'},
+                                    // {value: 'id'}, 
+                                    // {value: 'include'},
+                                    {value: 'modified', label: 'modified'},
+                                    // {value: 'parent'},
+                                    // {value: 'relevance'},
+                                    // {value: 'slug'},
+                                    // {value: 'include_slugs'},
+                                    {value: 'title', label: 'title'}
+                                ],
                                 value: attributes.orderBy,
+                                onChange: changeOrderBy,
                             }),
-                            el( TextControl , { // should be SelectControl
+                            el( SelectControl , { // should be SelectControl
                                 label: __('Order'),
+                                options: [
+                                    {value: 'asc', label: 'asc'},
+                                    {value: 'desc', label: 'desc'}
+                                ],
                                 value: attributes.order,
+                                onChange: changeOrder,
                             })
                         ),
                         el(PanelBody, {title: __('Head')}, 
@@ -161,8 +186,13 @@
                                 onChange: changeDisplayLink,
                             }),
                             el(ToggleControl, {
+                                label: __('Display Author'),
+                                checked: attributes.displayAuthor,
+                                onChange: changeDisplayAuthor,
+                            }),
+                            el(ToggleControl, {
                                 label: __('Display Post Date'),
-                                checked: attributes.changeDisplayPostDate,
+                                checked: attributes.displayPostDate,
                                 onChange: changeDisplayPostDate,
                             }),
                         ),
@@ -183,7 +213,6 @@
                                 onChange: changeTitleClass,
                             }),
                         ),
-
                     ),
                     
                     // the following will be displayed as the block while editing

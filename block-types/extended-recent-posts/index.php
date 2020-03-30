@@ -58,6 +58,10 @@ const block_attributes = array(
 		'type'    => 'number',
 		'default' => 3,
 	),
+	'displayAuthor' => array(
+		'type' => 'boolean',
+		'default' => false,
+	),
 	'displayFeaturedImage' => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -113,7 +117,7 @@ const block_attributes = array(
 	),
 	'orderBy'                 => array(
 		'type'    => 'string',
-		'enum' => ''
+		'enum' => array('author', 'date', 'id', 'include', 'modified', 'parent', 'relevance', 'slug', 'include_slugs', 'title'),
 		'default' => 'date',
 	),
 	'postLayout'              => array(
@@ -184,6 +188,7 @@ function schutzteufel_extended_recent_posts_block_render_callback($attributes){
 
 		$title = get_the_title( $post );
 		
+		// TODO: arrange the following three elements nicely
 		if ($attributes['displayLink']){
 			if ( ! $title ) {
 				$title = __( '(no title)' );
@@ -194,12 +199,18 @@ function schutzteufel_extended_recent_posts_block_render_callback($attributes){
 				$title
 			);
 		}
-
 		if ( isset( $attributes['displayPostDate'] ) && $attributes['displayPostDate'] ) {
 			$list_items_markup .= sprintf(
 				'<time datetime="%1$s" class="wp-block-latest-posts__post-date">%2$s</time>',
 				esc_attr( get_the_date( 'c', $post ) ),
 				esc_html( get_the_date( '', $post ) )
+			);
+		}
+		if ( isset( $attributes['displayAuthor'] ) && $attributes['displayAuthor'] ) {
+			$list_items_markup .= sprintf(
+				'<p class="">%1$s</p>',
+				//'<a href="%1$">',
+				get_the_author( $post)
 			);
 		}
 
