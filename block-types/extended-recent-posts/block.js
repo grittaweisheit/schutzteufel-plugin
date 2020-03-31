@@ -57,30 +57,35 @@
 
                 var attributes = props.attributes
                 var alignment = props.attributes.align
-                const all_posts = props.all_posts
-                const all_categories = props.all_categories
+                var all_posts = props.all_posts
+                var all_categories = props.all_categories
 				
-                const all_category_names
-                const category_options
-				const selected_categories
+                var all_category_names = []
+                var category_options = []
+				var selected_categories = []
 				function createCategoryOption (cat) {
-					return {value: cat, label: cat.name}
+					return {value: cat.id , label: cat.name}
 				}
 				if (all_categories){
-					all_category_names = all_categories.map(cat => cat.name)
-                    // console.log(all_category_names)
                     category_options = all_categories.map(createCategoryOption)
-                    console.log(category_options)
                 }
-                function selectCategory (cat) {
+                function selectCategory (input) {
+					var cat = input[0] // retrieve actual value from input
+					
                     var index = selected_categories.indexOf(cat)
                     if (index == -1){ // add category
                         selected_categories.push(cat)
                     }else{ // remove if it was selected beforehand
-                        var tmp = selected_categories
-                        selected_categories = tmp.slice(0, index) + tmp.slice(index+1)
+                        selected_categories.splice(index, 1)
                     }
                 }
+				function categoriesToString(cats){
+					var catsString
+					for(cat in cats){
+						catsString.concat(" ".concat(cat.name))
+					}
+					return catsString
+				}
                 
 				function changeAlign (changedAlign) {
                     props.setAttributes({ align: changedAlign })
@@ -170,18 +175,6 @@
                                 min: 1,
                                 max: 100,
                             }),
-
-                            el(QueryControls, {
-                                 ...{order, orderBy},
-                                numberOfItems: attributes.numberOfPosts,
-                                onOrderChanges: changeOrder,
-                                onOrderByChanges: changeOrderBy,
-                                onNumberOfItemsChange: changeNumberOfPosts,
-                                categorySuggestions: category_options,
-                                onCategoryChange: selectCategory,
-                                selectedCategories: selected_categories,
-                            }),
-
                             el( SelectControl , { // should be SelectControl
                                 label: __('Order By'),
                                 options: [
@@ -212,9 +205,9 @@
                                 label: __('Categories'),
                                 multiple: true,
                                 options: category_options,
-                                // value: attributes.categories,
-                                onChange: changeCatecories,
-                            })
+                                value: selected_categories,
+                                onChange: selectCategory,
+                            }),
                         ),
                         el(PanelBody, {title: __('Head')}, 
                             el(ToggleControl, {
