@@ -20,6 +20,7 @@
         SelectControl,
         TextControl,
         ToggleControl,
+        RadioControl,
         RangeControl,
         QueryControls,
     } = components;
@@ -30,6 +31,9 @@
         withSelect,
     } = data;
  
+    const MAX_EXCERPT_LENGTH = 100
+    const MIN_EXCERPT_LENGTH = 1
+
     registerBlockType( 'schutzteufel/extended-recent-posts-block', {
         title: 'Recent Posts',
         icon: 'businessman',
@@ -59,38 +63,13 @@
                 var alignment = props.attributes.align
                 var all_posts = props.all_posts
                 var all_categories = props.all_categories
-				
-                var all_category_names = []
-                var category_options = []
 				var selected_categories = []
-				function createCategoryOption (cat) {
-					return {value: cat.id , label: cat.name}
-				}
-				if (all_categories){
-                    category_options = all_categories.map(createCategoryOption)
-                }
-                function selectCategory (input) {
-					var cat = input[0] // retrieve actual value from input
-					
-                    var index = selected_categories.indexOf(cat)
-                    if (index == -1){ // add category
-                        selected_categories.push(cat)
-                    }else{ // remove if it was selected beforehand
-                        selected_categories.splice(index, 1)
-                    }
-                }
-				function categoriesToString(cats){
-					var catsString
-					for(cat in cats){
-						catsString.concat(" ".concat(cat.name))
-					}
-					return catsString
-				}
+				
                 
 				function changeAlign (changedAlign) {
                     props.setAttributes({ align: changedAlign })
                 }
-                function changeCatecories (changedCategories) {
+                function changeCategories (changedCategories) {
                     props.setAttributes({ categories: changedCategories })
                 }
                 function changeClassName (changedClassName) {
@@ -153,8 +132,58 @@
                 function changeTitleTag (changedTitleTag) {
                     props.setAttributes({ titleTag: changedTitleTag })
                 }
-
-
+				function stringArrayToString(strings){
+					var result = ""
+					for (str of strings){
+						result = result.concat(" ", str)
+					}
+					return result
+				}
+				
+                var category_options = []
+				function createCategoryOption (cat) {
+					return {value: cat.id , label: cat.name}
+				}
+				if (all_categories){
+                    category_options = all_categories.map(createCategoryOption)
+					//category_options.push({value: -2, label: 'select all'})
+					//category_options.push({value: -1, label: 'none'})
+                }
+                function selectCategory (input) {
+					var cat = input[0] // retrieve actual value from input
+					
+                    var index = selected_categories.indexOf(cat)
+					
+					/*  this messes with the display of selected stuff
+					if(cat == -1){ // deselect all categories
+						selected_categories = []
+						// changeCategories()
+						var cat_string = selected_categories.join()
+						console.log('string:')
+						console.log(cat_string)
+						return
+					}
+					if(cat == -2){ // select all categories
+						selected_categories = all_categories.map(cat => cat.id)
+						var cat_string = selected_categories.join()
+						console.log('string:')
+						console.log(cat_string)
+						return
+					} */
+					
+                    if (index == -1){ // add category
+                        selected_categories.push(cat)
+                    }else{ // remove if it has been selected before
+                        selected_categories.splice(index, 1)
+                    }
+					
+					var cat_string = selected_categories.join()
+					console.log('string:')
+					console.log(cat_string)
+					changeCategories(cat_string)
+                }
+				
+				
                 return [
                     // this is displayed on top of the block when editing it
                     el(BlockControls, { key: 'controls' },
@@ -200,14 +229,21 @@
                                 ],
                                 value: attributes.order,
                                 onChange: changeOrder,
-                            }),
+                            }),/*
                             el(SelectControl, {
                                 label: __('Categories'),
                                 multiple: true,
                                 options: category_options,
                                 value: selected_categories,
                                 onChange: selectCategory,
-                            }),
+                            }),*/
+                            el(SelectControl, {
+                                label: __('Categories'),
+                                multiple: false,
+                                options: category_options,
+                                value: attributes.categories,
+                                onChange: changeCategories,
+                            })
                         ),
                         el(PanelBody, {title: __('Head')}, 
                             el(ToggleControl, {
@@ -243,22 +279,33 @@
                                 onChange: changeTitleClass,
                             }),
                         ),
+                        el(PanelBody, {title: __('Post Content')},
+                            el(ToggleControl, {
+                                label: __('Display Post Content'),
+                                checked: attributes.displayPostContent,
+                                onChange: changeDisplayPostContent,
+                            }),
+                            attributes.displayPostContent && el(RadioControl, { 
+                                label: __('Show:'),
+                                selected: attributes.changeDisplayPostContentRadio,
+                                options: [
+                                    {value: 'excerpt', label: 'Excerpt'}, 
+                                    {value: 'full_post', label: 'Full Post'},
+                                ],
+                                onChange: changeDisplayPostContentRadio,
+                            }),
+                            attributes.displayPostContent && attributes.displayPostContentRadio === 'excerpt' && el(RadioControl, {
+                                label: __('Max number of words in excerpt'),
+                                value: attributes.excerptLength,
+                                onChange: changeExcerptLength,
+                                min: MIN_EXCERPT_LENGTH,
+                                max: MAX_EXCERPT_LENGTH,
+                            }),
+                        ),
                     ),
                     
                     // the following will be displayed as the block while editing
-                    el('div', { },
-                       el(RichText, {
-                            tagName: 'h1',
-                            placeholder: __('Write Content2 for RichText'),
-                            keepPlaceholderOnFocus: true,
-                            value: attributes.content2,
-                            onChange: function(newContent2){
-                                props.setAttributes({content2: newContent2})
-                            }
-                        }), 
-
-					   //el('p', {}, posts[0].title),
-                    )
+                    el('div', { }, 'Extended Recent Posts Block')
                 ]
             },),
 		save: function(props){
