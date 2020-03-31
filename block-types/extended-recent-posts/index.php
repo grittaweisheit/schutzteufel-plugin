@@ -188,7 +188,6 @@ function schutzteufel_extended_recent_posts_block_render_callback($attributes){
 
 		$title = get_the_title( $post );
 		
-		// TODO: arrange the following three elements nicely
 		if ($attributes['displayLink']){
 			if ( ! $title ) {
 				$title = __( '(no title)' );
