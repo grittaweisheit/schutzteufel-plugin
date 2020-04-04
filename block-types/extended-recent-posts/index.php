@@ -19,27 +19,6 @@ defined( 'ABSPATH' ) || exit;
  * @since 1.0.0
  */
 
-
-/**
- * The excerpt length set by the Latest Posts core block
- * set at render time and used by the block itself.
- *
- * @var int
- */
-$block_core_latest_posts_excerpt_length = 0;
-
-/**
- * Callback for the excerpt_length filter used by
- * the Latest Posts block at render time.
- *
- * @return int Returns the global $block_core_latest_posts_excerpt_length variable
- *             to allow the excerpt_length filter respect the Latest Block setting.
- */
-function block_core_latest_posts_get_excerpt_length() {
-	global $block_core_latest_posts_excerpt_length;
-	return $block_core_latest_posts_excerpt_length;
-}
-
 /**
  * declare attributes of extended-recent-posts-block
  */
@@ -50,6 +29,7 @@ const block_attributes = array(
 	),
 	'categories' => array(
 		'type' => 'string',
+		// 'default' => '',
 	),
 	'className' => array(
 		'type' => 'string',
@@ -80,6 +60,7 @@ const block_attributes = array(
 	),
 	'displayPostContentRadio' => array(
 		'type'    => 'string',
+		'enum'	  => array('excerpt', 'full_post'),
 		'default' => 'excerpt',
 	),
 	'displayPostDate'         => array(
@@ -135,7 +116,7 @@ const block_attributes = array(
 );
 
 function schutzteufel_extended_recent_posts_block_render_callback($attributes){
-	global $block_core_latest_posts_excerpt_length;
+	// global $block_core_latest_posts_excerpt_length;
 
 	$args = array(
 		'posts_per_page'   => $attributes['numberOfPosts'],
@@ -145,8 +126,8 @@ function schutzteufel_extended_recent_posts_block_render_callback($attributes){
 		'suppress_filters' => false,
 	);
 
-	$block_core_latest_posts_excerpt_length = $attributes['excerptLength'];
-	add_filter( 'excerpt_length', 'block_core_latest_posts_get_excerpt_length', 20 );
+	// $block_core_latest_posts_excerpt_length = $attributes['excerptLength'];
+	// add_filter( 'excerpt_length', 'block_core_latest_posts_get_excerpt_length', 20 );
 
 	if ( isset( $attributes['categories'] ) ) {
 		$args['category'] = $attributes['categories'];
@@ -257,7 +238,7 @@ function schutzteufel_extended_recent_posts_block_render_callback($attributes){
 		$list_items_markup .= "</li>\n";
 	}
 
-	remove_filter( 'excerpt_length', 'block_core_latest_posts_get_excerpt_length', 20 );
+	//remove_filter( 'excerpt_length', 'block_core_latest_posts_get_excerpt_length', 20 );
 
 	$class = 'wp-block-latest-posts wp-block-latest-posts__list';
 	if ( isset( $attributes['align'] ) ) {
