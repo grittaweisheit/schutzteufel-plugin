@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Site Plugin for schutzteufel.de
- * Description: Site specific code changes for schutzteufel.de
+ * Plugin Name: Schutzteufel Plugin
+ * Description: code changes used in schutzteufel.de for additional blocks, templates and so on
  * @package ST
  */
 
